@@ -71,6 +71,10 @@ public class Stm {
 
 		}
 
+		if (end) { // 当前节点终结时所有子节点必须处于满足，否则解析失败。这是利用了stm节点的特性
+
+		}
+
 		return true;
 	}
 }
