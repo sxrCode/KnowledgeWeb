@@ -9,12 +9,6 @@ public class PlusNode extends GrammarNode {
 	}
 
 	@Override
-	public boolean create(char c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	protected boolean isSatisfied() {
 		// TODO Auto-generated method stub
 		return false;
@@ -34,6 +28,12 @@ public class PlusNode extends GrammarNode {
 
 	@Override
 	public GrammarNode delegate(char c) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GrammarNode create(char c) {
 		// TODO Auto-generated method stub
 		return null;
 	}

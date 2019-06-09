@@ -1,60 +1,73 @@
 package com.sxr.knowledge.temp.parse;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Driver {
 
 	public static void main(String[] args) {
 		Driver driver = new Driver();
 		driver.pos = 0;
-		driver.rootNode = null;
+		driver.rootNode = new SNode();
 		System.out.println(driver.run());
 	}
 
 	private SNode rootNode = null;
-	private SNode backGrammarNode;
+	private SNode beforeSNode;
 
 	private int pos = 0;
 
 	public boolean run() {
-		if (rootNode == null) {
-			rootNode = new SNode();
+		if (beforeSNode == null) {
+			beforeSNode = rootNode;
 		}
 
-		backGrammarNode = new SNode();
-		rootNode.copy(backGrammarNode);
-		System.out.println("pos: " + pos + ";\n" + backGrammarNode.display());
-
-		GrammarNode unsatisfiedNode = backGrammarNode.getUnsatisfiedNode();
-		if (unsatisfiedNode == null)
-			unsatisfiedNode = backGrammarNode;
+		System.out.println("\n\nrun node pos: " + pos + " -- " + rootNode.display());
 
 		if (pos == DataStore.getLength()) {
-			return rootNode.isSatisfied();
+			return rootNode != null && rootNode.isSatisfied();
 		}
 
-		return deal(unsatisfiedNode, DataStore.getChar(pos));
+		return deal();
 	}
 
-	private boolean deal(GrammarNode node, char c) {// 两种策略，对于更多策略应当使用循环，一种不行回退再试另一种
-		System.out.println("deal new node --" + pos + "\n\n");
-		rootNode.copy(backGrammarNode);
-		if (node.create(c)) {
+	private boolean deal() {// 两种策略，对于更多策略应当使用循环，一种不行回退再试另一种
+		List<SNode> activeNodes = new LinkedList<>();
+		getActiveNodes(beforeSNode, activeNodes);
+		System.out.println("activeNodes size: " + activeNodes.size() + " -- " + DataStore.getChar(pos));
 
-			// 发生修改，应当创建还原点,再交由子节点驱动
-			Driver driver = new Driver();
-			driver.pos = pos + 1;
-			driver.rootNode = backGrammarNode;
+		for (SNode sNode : activeNodes) {
+			System.out.println("loop  " + "  --  " + pos + "  --  " + rootNode.display());
+			GrammarNode newNode = sNode.create(DataStore.getChar(pos));
+			if (newNode != null) {
 
-			if (driver.run()) { // 解析成功
-				return true;
+				Driver driver = new Driver();
+				driver.pos = pos + 1;
+				driver.rootNode = rootNode;
+				if (newNode instanceof SNode) {
+					driver.beforeSNode = (SNode) newNode;
+				} else {
+					driver.beforeSNode = sNode;
+				}
+
+				System.out.println("create new node -- " + rootNode.display());
+				if (driver.run()) { // 解析成功
+					return true;
+				}
+
+				sNode.delete(newNode);
 			}
 		}
 
-		GrammarNode delegateNode = node.delegate(c);
-		if (delegateNode != null) {
-			return deal(delegateNode, c);
-		}
-
 		return false;
+	}
+
+	private void getActiveNodes(SNode node, List<SNode> activeNodes) {
+
+		if (node.parentNode != null)
+			getActiveNodes(node.parentNode, activeNodes);
+		if (!node.isEnd())
+			activeNodes.add(node);
 	}
 
 }

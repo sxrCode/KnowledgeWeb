@@ -16,6 +16,8 @@ public class SNode extends GrammarNode {
 	private MultiNode multiNode;
 	private ANode aNode = new ANode();
 
+	public SNode parentNode;
+
 	@Override
 	public boolean isSatisfied() {
 		return (sNodes.size() == 2 && plusNode != null) || (sNodes.size() == 2 && multiNode != null) || aNode != null;
@@ -23,6 +25,16 @@ public class SNode extends GrammarNode {
 
 	protected boolean isEnd() {
 		return (sNodes.size() == 2 && plusNode != null) || (sNodes.size() == 2 && multiNode != null);
+	}
+
+	public boolean isActive() {
+		// 有孩子节点不满足，则不应被激活
+		// 1.是叶子节点
+		if (aNode != null) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -55,31 +67,52 @@ public class SNode extends GrammarNode {
 	}
 
 	@Override
-	public boolean create(char c) {
+	public GrammarNode create(char c) {
 		if (!isEnd()) {
 			if ('a' == c) {
 				aNode = null;
 				if (sNodes.size() < 2) {
 					SNode sNode = new SNode();
+					sNode.parentNode = this;
 					sNodes.add(sNode);
-					return true;
+					return sNode;
 				}
 
 			} else if ('+' == c) {
 				if (sNodes.size() == 2) {
 					PlusNode plusNode = new PlusNode();
 					this.plusNode = plusNode;
-					return true;
+					return plusNode;
 				}
 
 			} else if ('*' == c) {
 				if (sNodes.size() == 2) {
 					MultiNode multiNode = new MultiNode();
 					this.multiNode = multiNode;
-					return true;
+					return multiNode;
 				}
 
 			}
+		}
+
+		return null;
+	}
+
+	public boolean delete(GrammarNode subNode) {
+		for (SNode sNode : sNodes) {
+			if (sNode == subNode) {
+				return sNodes.remove(sNode);
+			}
+		}
+
+		if (subNode == multiNode) {
+			multiNode = null;
+			return true;
+		}
+
+		if (subNode == plusNode) {
+			plusNode = null;
+			return true;
 		}
 
 		return false;
@@ -126,6 +159,10 @@ public class SNode extends GrammarNode {
 		}
 
 		return stringBuilder.toString();
+	}
+
+	public List<SNode> getsNodes() {
+		return sNodes;
 	}
 
 }
