@@ -29,7 +29,7 @@ public class SNode extends GrammarNode {
 
 	public boolean isActive() {
 		// 有孩子节点不满足，则不应被激活
-		// 1.是叶子节点
+
 		if (aNode != null) {
 			return true;
 		}
