@@ -70,11 +70,11 @@ public class SNode extends GrammarNode {
 	public GrammarNode create(char c) {
 		if (!isEnd()) {
 			if ('a' == c) {
-				aNode = null;
 				if (sNodes.size() < 2) {
 					SNode sNode = new SNode();
 					sNode.parentNode = this;
 					sNodes.add(sNode);
+					aNode = null;
 					return sNode;
 				}
 
@@ -96,6 +96,24 @@ public class SNode extends GrammarNode {
 		}
 
 		return null;
+	}
+
+	public SNode addSNode() { // 添加纯粹的S节点
+		if (!isEnd()) {
+			if (sNodes.size() < 2) {
+				SNode sNode = new SNode();
+				sNode.aNode = null;
+				sNode.parentNode = this;
+				sNodes.add(sNode);
+				this.aNode = null;
+				return sNode;
+			}
+		}
+		return null;
+	}
+
+	public void transferToS() {
+		this.aNode = null;
 	}
 
 	public boolean delete(GrammarNode subNode) {
